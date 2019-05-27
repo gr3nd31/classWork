@@ -1,0 +1,100 @@
+---
+title: "Homework #1"
+author: "Jason Needham"
+date: "5/27/2019"
+output: html_document
+---
+
+# <u>Welcome to Jason Needham's Homework Assignment</u>
+
+## The Assignment
+The assignment was to take a dataframe (the 'Iris' dataset native to R, specifically) and generate scatterplots of each numerical variable against each other numerical variable. Additionally, each graph should have a panel letter, have appropriate spacing, a central common legend, and dots should be colored by species. Ideally, it should be possible to take *any* dataset and generate these exploratory graphs but I ran into some issues with that, as we'll see.
+
+## First, the libraries
+For this asignment, I used **ggplot2**, **purrr**, and **cowplot** to generate the graphs:
+```{r}
+library(ggplot2)
+library(purrr)
+library(cowplot)
+```
+
+I used **ggplot** as I am more familiar with it than the base R package, and I was told to use it. **Cowplot** was used to arrange the panel onto a figure and generate the common legend, and **purrr** was used to iteratively generat the ggplots (see [here](https://aosmith.rbind.io/2018/08/20/automating-exploratory-plots/) for details).
+
+## Second, the graphing function
+I used a pretty basic ggplot function which took two arguments, which should be the names of the x and y variables being graphed. I iterated by name rather than number as the *set_name()* fucntion from **purrr** allowed me to generate a list of graphs by iterating through names. I used some nice looking hexidecimal colors for the species colors and made a **REALLY BIG LEGEND** (which was promptly NULL'd while being arranged with **cowplot's** *plot_grid()* function).
+
+```{r}
+gguc <- function(x=1,y=1){
+  ggplot(data = iris, aes_string(x = iris[[x]], y = iris[[y]], color = iris$Species))+
+    geom_point()+
+    geom_density_2d()+
+    xlab(x)+
+    ylab(y)+
+    scale_color_manual(values=c("#CC6666", "#9999CC", "#66CC99"))+
+    theme_classic()+
+    theme(axis.text = element_text(size = 10), 
+          axis.title = element_text(size = 14),
+          legend.position = "bottom",
+          legend.title = element_blank(),
+          legend.text = element_text(size = 18))
+}
+```
+
+## Third, iterating through the data
+As I mentioned [above](https://aosmith.rbind.io/2018/08/20/automating-exploratory-plots/), I used **purrr** to iterate through the names. But first, I had to make a list of names that could be used to assign graph names:
+```{r}
+dat1 <- names(iris)[1:4]
+dat1 <- set_names(dat1)
+dat1
+```
+
+While the index used is *specific* for the Iris dataset, it can be altered for any given dataset. Alternatively, if the dataset of interest <u>only</u> has variables you'd like to graph, it can be bypassed completely.
+
+Once I had a list of suitable names, I iterated through the data through the graphing function using the *map()* function from **purrr**:
+```{r}
+all_plots2 = map(dat1,
+                 ~map(dat1, gguc, y = .x))
+```
+This generates a list of graphs. I created this list because I had a difficult time calling the graphs into a grid without it. Speaking of creating a grid...
+
+## Fourth, creating the grid
+I originally used the *ggarrange()* function from **ggpubr** to do the arrangement, since *ggarrange()* has an easy common legend argument. However, changing this legend's size was difficult. By using **cowplot**'s *plot_grid()*, however, I was able to take the giant legends created by the graphing function and pipe that as the common legend while assigning the legend of each graph as "none" during the arrangement. I also created a vector of the labels I wanted to use which was taken as an arugment for *plot_grid()*. Unfortunatley, I couldn't figure out a way to iteratively call the graphs in my ``all_plots2`` list into *plot_grid()* so I hard coded the indices of each graph. There must be a way to do this, but this got the job done. 
+```{r}
+labs <- c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P")
+thing <- plot_grid(all_plots2[[1]][[1]]+theme(legend.position = "none"),
+                   all_plots2[[1]][[2]]+theme(legend.position = "none"),
+                   all_plots2[[1]][[3]]+theme(legend.position = "none"),
+                   all_plots2[[1]][[4]]+theme(legend.position = "none"),
+                   all_plots2[[2]][[1]]+theme(legend.position = "none"),
+                   all_plots2[[2]][[2]]+theme(legend.position = "none"),
+                   all_plots2[[2]][[3]]+theme(legend.position = "none"),
+                   all_plots2[[2]][[4]]+theme(legend.position = "none"),
+                   all_plots2[[3]][[1]]+theme(legend.position = "none"),
+                   all_plots2[[3]][[2]]+theme(legend.position = "none"),
+                   all_plots2[[3]][[3]]+theme(legend.position = "none"),
+                   all_plots2[[3]][[4]]+theme(legend.position = "none"),
+                   all_plots2[[4]][[1]]+theme(legend.position = "none"),
+                   all_plots2[[4]][[2]]+theme(legend.position = "none"),
+                   all_plots2[[4]][[3]]+theme(legend.position = "none"),
+                   all_plots2[[4]][[4]]+theme(legend.position = "none"),
+                   nrow = 4, ncol = 4,
+                   labels = labs)
+
+legnd <- get_legend(all_plots2[[1]][[1]])
+things <- plot_grid(thing, legnd, ncol = 1, rel_heights = c(1, 0.05))
+```
+```{r, echo=FALSE}
+things
+```
+
+You probably notice that this image looks cluttered, but this works itself out when the image is saved as an SVG.
+
+## Fifth, saving the figure
+Now that I had a figure that looked *presentable*, I saved it as an SVG as it is great for html visualization, its a vector image, and its the native file format of inkscape, which is the open-source graphics program I use:
+```{r, eval=FALSE}
+svg("hmw1.svg", height = 11, width = 8.5)
+print(things)
+dev.off()
+```
+
+With that, I was finished with the homework assignment! Thanks for reading!
