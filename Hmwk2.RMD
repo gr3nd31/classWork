@@ -1,0 +1,16 @@
+---
+title: "Homework #2"
+author: "Jason Needham"
+date: "5/28/2019"
+output:
+  html_document:
+    df_print: paged
+---
+
+# Homework 2
+
+## 2A: How does R determine an outlier?
+To determine how the *boxplot()* function calls an outlier, I performed a simple Google search and found [this](http://r-statistics.co/Outlier-Treatment-With-R.html) site. It states that outliers are called using the <u>Univariate approach</u>. Any points that has a variable value that is more than $1.5\times IQR$ is considered an outlier where $IQR$ is the Inter-Quartile Range of the data.
+
+## 2B: Why use $n-1$ instead of $n$ when calculating standard deviation?
+After much [reading](https://www.statisticshowto.datasciencecentral.com/bessels-correction/), I have found out that using $n-1$ (also known as a *Bessel correction*) instead of $n$ is required to correct for the tendancy of using $n$ to *underestimate* the squares of the deviation. This is because a <u>population mean</u> always generates a sums of squares larger than the <u>sample mean</u> since the sample population will always be closer to the <u>sample mean</u> than the <u>population mean</u>. The only time this wouldn't be true is if your <u>population mean</u> and <u>sample mean </u> happened to be the same. It turns out, however, that this difference in the sums of squares can be corrected by dividing by $n-1$ rather than $n$, except when $n$ is a very large number. But if $n$ is a large number, there is a good chance that your <u>population mean</u> $\approx$ <u>sample mean</u>.
