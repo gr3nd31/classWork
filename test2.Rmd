@@ -1,8 +1,10 @@
 ---
-title: "Homework #1"
+title: 'Homework #1'
 author: "Jason Needham"
 date: "5/27/2019"
-output: html_document
+output:
+  word_document: default
+  html_document: default
 ---
 
 # <u>Welcome to Jason Needham's Homework Assignment</u>
@@ -87,7 +89,7 @@ things <- plot_grid(thing, legnd, ncol = 1, rel_heights = c(1, 0.05))
 things
 ```
 
-You probably notice that this image looks cluttered, but this works itself out when the image is saved as an SVG.
+You probably notice that this image looks cluttered, but this works itself out when the image is saved as an SVG. If it were still an issue, however, I would use the **ggplot** theme element *plot.margin=margin(l=someNumber, unit = "cm")* to get the marings *juuuust* right.
 
 ## Fifth, saving the figure
 Now that I had a figure that looked *presentable*, I saved it as an SVG as it is great for html visualization, its a vector image, and its the native file format of inkscape, which is the open-source graphics program I use:
